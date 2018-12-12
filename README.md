@@ -1,6 +1,10 @@
 # observer-bot
 Basic administration bot. ONLY has administration features, no other junk.
 Still in beta, not really ready to use yet.
+The bot is currently intended to be a single server, self hosted bot. It is unknown if this will change in the future.
+
+## Use
+You must add the bot's token to a file named "token" in the execution directory in order for the bot to start.
 
 ## Features
 Reposts messages that are quickdeleted.
