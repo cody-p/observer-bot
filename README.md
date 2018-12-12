@@ -22,3 +22,4 @@ Use the =help command for more info.
 * Anonymous report function
 * Greet messages
 * Word blacklist (slurs, etc)
+* Message archiving
