@@ -28,7 +28,14 @@ async def on_message(message):
         await message.channel.send("pong!")
         
     elif message.content.startswith("=help"):
-        await message.channel.send("__**The Observer**__\n\n**=ping** - replies with 'pong!'\n**=toss** - locks a user in #quarantine\n**=untoss** - removes a user from #quarantine\n**=timer** - creates a 3 minute timer, used for testing responsiveness in #quarantine\n**=purge** - attempts to delete all messages in the channel")
+        await message.channel.send(\
+"__**The Observer**__\
+\n\n**=ping** - replies with 'pong!'\
+\n**=toss** - locks a user in #quarantine\
+\n**=untoss** - removes a user from #quarantine\
+\n**=timer** - creates a 3 minute timer, used for testing responsiveness in #quarantine\
+\n**=purge** - attempts to delete all messages in the channel\
+\n\n**Github:** <https://github.com/cody-p/observer-bot>")
                                    
     elif message.content.startswith('=toss'):
         perms = message.author.permissions_in(message.channel)
@@ -107,7 +114,6 @@ async def on_message(message):
         await asyncio.sleep(180)
         msg = await message.channel.send(message.author.mention)
         await msg.edit(content=":hourglass:")
-    
 
     # quickdelete police
     if not message.author.bot:
