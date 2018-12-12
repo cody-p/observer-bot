@@ -11,7 +11,7 @@ Reposts messages that are quickdeleted.
 Toss, untoss, timer, and purge commands.
 Use the =help command for more info.
 
-### Planned features
+## Planned features
 * Toss should eventually remove roles. Untoss likewise restore them.
 * Make channel and role names configurable
 * Make quickdelete have a channel blacklist
@@ -19,3 +19,5 @@ Use the =help command for more info.
 * Logging
 * A say command
 * Configurable prefixes
+* Anonymous report function
+* Greet messages
