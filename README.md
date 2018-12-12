@@ -21,3 +21,4 @@ Use the =help command for more info.
 * Configurable prefixes
 * Anonymous report function
 * Greet messages
+* Word blacklist (slurs, etc)
