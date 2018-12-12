@@ -1,6 +1,0 @@
-[package]
-name = "observer-bot"
-version = "0.1.0"
-authors = ["Cody Paschich <professional.voidlurker.net>"]
-
-[dependencies]
