@@ -146,7 +146,7 @@ async def on_message_delete(message):
 #c = conn.cursor()
 
 f=open("./token","r")
-token = f.read()
+token = f.read().strip()
 f.close()
 client.run(token)
 
