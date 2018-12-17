@@ -23,3 +23,4 @@ Use the =help command for more info.
 * Greet messages
 * Word blacklist (slurs, etc)
 * Message archiving
+* Sniping (revealing recent edits)
