@@ -51,7 +51,7 @@ async def on_message(message):
                 for member in message.mentions:
                     try:
                         await member.add_roles(roleban)
-                        await message.channel.send("**" + member.name + "#" + member.discriminator + "** has been rolebanned in #" + message.channel.name + " by **" + message.author.name + "**.")
+                        await message.channel.send("**" + member.name + "#" + member.discriminator + "** has been rolebanned.\n**ID**: " + str(member.id))
                     except discord.Forbidden:
                         await message.channel.send("I don't have permission to edit roles for this user!")
                         
@@ -76,7 +76,7 @@ async def on_message(message):
                 for member in message.mentions:
                     try:
                         await member.remove_roles(roleban)
-                        await message.channel.send("**" + member.name + "#" + member.discriminator + "** has been unrolebanned in #" + message.channel.name + " by **" + message.author.name + "**.")
+                        await message.channel.send("**" + member.name + "#" + member.discriminator + "** has been unrolebanned.")
                     except discord.Forbidden:
                         await message.channel.send("I don't have permission to edit roles for this user!")
                         
