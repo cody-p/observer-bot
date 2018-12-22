@@ -7,17 +7,41 @@ client = discord.Client()
 global quickdelete_list
 quickdelete_list = {}
 
+global channel_modchat
+global guild_home
+
 def get_roleban_role(guild):
     for role in guild.roles:
         if role.name == "roleban":
             return role
     return None
-    
+
+def locate_channel(guild, channelName):
+    for chan in guild.channels:
+        if chan.name == channelName:
+            return chan
+    return None
+
 @client.event
 async def on_ready():
     print('logged in'.format(client))
     act = discord.Activity(type=discord.ActivityType.watching, name="everything")
     await client.change_presence(activity=act)
+    
+    
+    global guild_home
+    guild_home = None
+    # This is currently a single server bot, so it breaks after finding the first one, assuming it's only one
+    for guild in client.guilds:
+        guild_home = guild;
+        break;
+    	
+    global channel_modchat;
+    channel_modchat = locate_channel(guild, "mod-chat");
+    if (channel_modchat == None):
+        print("No mod-chat located in " + guild_home.name + ".");
+    else:
+        print("mod-chat located.")
 
 @client.event
 async def on_message(message):
@@ -134,8 +158,15 @@ async def on_message_delete(message):
             #create embed
             deletionEmbed = discord.Embed(description=descText)                
             deletionEmbed.set_author(name=message.author.name + " said...", icon_url=message.author.avatar_url) 
-            deletionEmbed.set_footer(text="This message was automatically re-sent because it was deleted too recently after it was sent. Please ask an administrator if you would like the post removed entirely.")
-            await message.channel.send(embed=deletionEmbed)
+            
+            global channel_modchat
+            if channel_modchat == None:
+                deletionEmbed.set_footer(text="This message was automatically re-sent because it was deleted too recently after it was sent. Please ask an administrator if you would like the post removed entirely.")
+                await message.channel.send(embed=deletionEmbed)
+            else:
+                #TODO: add reacts to auto post in original channel
+                deletionEmbed.set_footer(text="Quickdelete detected.")
+                await channel_modchat.send(embed=deletionEmbed)
         except:
             await message.channel.send("There was a fucky wucky, asshole.")
 
