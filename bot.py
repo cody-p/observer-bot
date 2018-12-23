@@ -28,7 +28,7 @@ def remove_prefix(text, prefix):
 @client.event
 async def on_ready():
     print('logged in'.format(client))
-    act = discord.Activity(type=discord.ActivityType.watching, name="everything")
+    act = discord.Activity(type=discord.ActivityType.watching, name="for =help")
     await client.change_presence(activity=act)
     
     
