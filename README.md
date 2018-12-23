@@ -7,7 +7,7 @@ The bot is currently intended to be a single server, self hosted bot. It is unkn
 You must add the bot's token to a file named "token" in the execution directory in order for the bot to start.
 
 ## Features
-Reposts messages that are quickdeleted.
+Reposts messages that are quickdeleted. If there's a channel named #mod-chat, it will post the alerts there instead.
 Toss, untoss, timer, and purge commands.
 Use the =help command for more info.
 
