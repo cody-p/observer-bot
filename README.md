@@ -16,15 +16,10 @@ Toss, untoss, timer, and purge commands.
 Use the =help command for more info.
 
 ## Planned features
-* Toss should eventually remove roles. Untoss likewise restore them.
-
-✔️ Make channel and role names configurable
 * Make quickdelete have a channel blacklist
-* Give quickdelete a configurable, randomized time
 * Logging
 * A say command
 * Configurable prefixes
-* Anonymous report function
 * Greet messages
 * Word blacklist (slurs, etc)
 * Message archiving
