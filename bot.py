@@ -22,6 +22,9 @@ def locate_channel(guild, channelName):
             return chan
     return None
 
+def remove_prefix(text, prefix):
+    return text[text.startswith(prefix) and len(prefix):]
+
 @client.event
 async def on_ready():
     print('logged in'.format(client))
@@ -35,7 +38,7 @@ async def on_ready():
     for guild in client.guilds:
         guild_home = guild;
         break;
-    	
+        
     global channel_modchat;
     channel_modchat = locate_channel(guild, "mod-chat");
     if (channel_modchat == None):
@@ -47,19 +50,33 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
+    
     global quickdelete_list
+    global channel_modchat
+    
     if message.content.startswith("=ping"):
         await message.channel.send("pong!")
         
     elif message.content.startswith("=help"):
         await message.channel.send(\
-"__**The Observer**__\
-\n\n**=ping** - replies with 'pong!'\
-\n**=toss** - locks a user in #quarantine\
-\n**=untoss** - removes a user from #quarantine\
-\n**=timer** - creates a 3 minute timer, used for testing responsiveness in #quarantine\
-\n**=purge** - attempts to delete all messages in the channel\
-\n\n**Github:** <https://github.com/cody-p/observer-bot>")
+"\n\n__**User commands**__\
+\n`=ping` - replies with 'pong!'\
+\n`=report` - Send an anonymous report to server staff. It will be deleted from the channel of sending immediately. \
+Currently does not support images.\
+\n\n__**Mod commands**__\
+\n`=toss` - Applies the `roleban` role to mentioned users. Planned to remove other roles in the future. \
+Can only be used by users with the manage_roles permission.\
+\n`=untoss` - Removes the `roleban` role from mentioned users (and will restore their roles when role \
+removal is implemented).\
+\n`=timer` - creates a 3 minute timer, which pings the user when finished. Primarly meant for moderation purposes, \
+but can be used by normal users if they have a reason. \
+\n`=purge` - attempts to delete all messages in the channel. Requires manage_messages permission.\
+\n\n__**Passive Features**__\
+\nQuickdelete police - The bot will report messages that are deleted too quickly after being \
+posted directly to the mod team. If there is no mod channel, the message will instead be reposted \
+in the channel it was deleted from.\
+\n\n__**Info**__\
+\nGithub: https://github.com/cody-p/observer-bot")
                                    
     elif message.content.startswith('=toss'):
         perms = message.author.permissions_in(message.channel)
@@ -138,7 +155,14 @@ async def on_message(message):
         await asyncio.sleep(180)
         msg = await message.channel.send(message.author.mention)
         await msg.edit(content=":hourglass:")
-
+    elif message.content.startswith("=report"):
+        await message.delete()
+        if channel_modchat != None:
+            report_message = "**__REPORT RECEIVED:__**\n\n" + remove_prefix(message.clean_content, "=report")
+            await channel_modchat.send(report_message)
+        else:
+            await message.channel.send("This server currently doesn't accept anonymous reports.")
+        
     # quickdelete police
     if not message.author.bot:
         quickdelete_list[message.id] = message
