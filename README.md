@@ -7,13 +7,14 @@ The bot is currently intended to be a single server, self hosted bot. It is unkn
 You must add the bot's token to a file named "token" in the execution directory in order for the bot to start.
 
 ## Features
-Reposts messages that are quickdeleted. If there's a channel named #mod-chat, it will post the alerts there instead.
+Configurable. Will generate a default config (config.ini) if none is present.
+Reposts messages that are quickdeleted. Channel to repost is configurable; if invalid or left blank in config, will be reposted wherever the deletion happened.
 Toss, untoss, timer, and purge commands.
 Use the =help command for more info.
 
 ## Planned features
 * Toss should eventually remove roles. Untoss likewise restore them.
-* Make channel and role names configurable
+✔️ Make channel and role names configurable
 * Make quickdelete have a channel blacklist
 * Give quickdelete a configurable, randomized time
 * Logging
