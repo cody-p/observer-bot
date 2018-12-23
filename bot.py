@@ -4,6 +4,11 @@ import configparser
 import random
 import os.path
 
+#classes ==================================================
+class UserCache:
+    rolebanned = False
+    roles = []
+    
 #load config ==============================================
 def init_config():
     global botConfig
@@ -29,15 +34,10 @@ quickdelete_list = {}
 global channel_modchat
 global channel_quickdelete
 global guild_home
+global user_cache
+user_cache = dict()
 
 #functions ================================================
-def get_roleban_role(guild):
-    global botConfig
-    for role in guild.roles:
-        if role.name == botConfig['BOT_SETTINGS']['TossRole']:
-            return role
-    return None
-
 def locate_channel(guild, channelName):
     for chan in guild.channels:
         if chan.name == channelName:
@@ -50,19 +50,27 @@ def remove_prefix(text, prefix):
 def apply_config():
     global guild_home
     global channel_modchat;
+    global channel_quickdelete
+    global roleban
+    
     channel_modchat = locate_channel(guild_home, botConfig['CHANNELS']['ModChat']);
     if (channel_modchat == None):
         print("No " + botConfig['CHANNELS']['ModChat'] + " located in " + guild_home.name + ".");
     else:
-        print(botConfig['CHANNELS']['ModChat'] + " located.")
-        
-    global channel_quickdelete
+        print(botConfig['CHANNELS']['ModChat'] + " located.")  
+    
     channel_quickdelete = locate_channel(guild_home, botConfig['CHANNELS']['QuickDelete']);
     if (channel_quickdelete == None):
         print("No " + botConfig['CHANNELS']['QuickDelete'] + " located in " + guild_home.name + ".");
     else:
         print(botConfig['CHANNELS']['QuickDelete'] + " located.")
       
+    #find the roleban role
+    for role in guild_home.roles:
+        if role.name == botConfig['BOT_SETTINGS']['TossRole']:
+            roleban = role
+            break
+    
     return True
 #events ===================================================
 @client.event
@@ -79,7 +87,6 @@ async def on_ready():
         break;
         
     apply_config()
-    
 
 @client.event
 async def on_message(message):
@@ -89,10 +96,13 @@ async def on_message(message):
     global quickdelete_list
     global channel_modchat
     global botConfig
+    global roleban
+    global user_cache
     
     if message.content.startswith("=ping"):
         await message.channel.send("pong!")
-        
+    
+    # HELP ========================================================================================
     elif message.content.startswith("=help"):
         await message.channel.send(\
 "\n\n__**User commands**__\
@@ -115,24 +125,51 @@ in the channel it was deleted from.\
 \n\n__**Info**__\
 \nGithub: https://github.com/cody-p/observer-bot")
                                    
+    # TOSS ========================================================================================
     elif message.content.startswith('=toss'):
         perms = message.author.permissions_in(message.channel)
         
         # check if sender has permission to toss
         if perms.manage_roles:
             
-            #find the roleban role
-            roleban = get_roleban_role(message.guild)
-            
             #role found
             if roleban:
                 for member in message.mentions:
-                    try:
-                        await member.add_roles(roleban)
-                        await message.channel.send("**" + member.name + "#" + member.discriminator + "** has been rolebanned.\n**ID**: " + str(member.id))
-                    except discord.Forbidden:
-                        await message.channel.send("I don't have permission to edit roles for this user!")
-                        
+                    already_tossed = False
+                    for role in member.roles:
+                        if role == roleban:
+                            already_tossed = True
+                            break
+                            
+                    if not already_tossed:
+                        try:
+                            print("Asked to toss " + str(member.id))
+                            user_cache[member.id] = member.roles
+                            # The first role is always the everyone role, which can't be removed
+                            user_cache[member.id].pop(0)
+                            can_toss = True
+                            role_names = []
+                            for role in user_cache[member.id]:
+                                role_names.append(role.name)
+                                print(role.name)
+                                if role.managed:
+                                    can_toss = False
+                                    break
+                            if can_toss:
+                                await member.remove_roles(*user_cache[member.id], reason="Rolebanned")
+                                await member.add_roles(roleban)
+                                await message.channel.send("**" + member.name + "#" + member.discriminator + "** has been \
+rolebanned.\n**ID**: " + str(member.id) + "\n**Roles**: " + str(role_names))
+                                print("Tossed successfully.")
+                            else:
+                                print("Failed to toss because user has integrated roles.")
+                                await message.channel.send("This user has integrated roles that I can't remove. Deal with them yourself.")
+                                user_cache.pop(member.id, None)
+                        except discord.Forbidden:
+                            print("Failed to toss: error 403 (forbidden)")
+                            await message.channel.send("I'm not powerful enough to toss this user.")
+                    else:
+                        await message.channel.send(member.name + "#" + member.discriminator + " is already rolebanned.")
             #role not found
             else:
                 await message.channel.send("No roleban role.")
@@ -140,23 +177,41 @@ in the channel it was deleted from.\
         # no perms
         else:
             await message.channel.send("You need manage_roles to use this command.")
+            
+    #UNTOSS =======================================================================================
     elif message.content.startswith("=untoss"):
         perms = message.author.permissions_in(message.channel)
         
         # check if sender has permission to toss
-        if perms.manage_roles:
-            
-            #find the roleban role
-            roleban = get_roleban_role(message.guild)
-            
+        if perms.manage_roles:        
             #role found
             if roleban:
                 for member in message.mentions:
-                    try:
-                        await member.remove_roles(roleban)
-                        await message.channel.send("**" + member.name + "#" + member.discriminator + "** has been unrolebanned.")
-                    except discord.Forbidden:
-                        await message.channel.send("I don't have permission to edit roles for this user!")
+                    
+                    print("Asked to untoss " + str(member.id))
+                    tossed = False
+                    for role in member.roles:
+                        if role == roleban:
+                            tossed = True
+                            break
+                    if tossed:
+                        try:
+                            if user_cache[member.id] and len(user_cache[member.id]) > 0:
+                                await member.add_roles(*user_cache[member.id], reason="Unrolebanned")
+                            await member.remove_roles(roleban)
+                            role_names = []
+                            for role in user_cache[member.id]:
+                                role_names.append(role.name)
+                            await message.channel.send("**" + member.name + "#" + member.discriminator + "** has been unrolebanned.\
+                            \n**Roles restored**: " + str(role_names))
+                            print("Untossed successfully.")
+                            user_cache.pop(member.id, None)
+                        except discord.Forbidden:
+                            print("Failed to untoss: error 403 (forbidden)")
+                            await message.channel.send("I don't have permission perform this operation.")
+                    else:
+                        print("They were already untossed.")
+                        await message.channel.send(member.name + "#" + member.discriminator + " is not currently rolebanned.")
                         
             #role not found
             else:
@@ -166,7 +221,7 @@ in the channel it was deleted from.\
         else:
             await message.channel.send("You need manage_roles to use this command.")
 
-    # PURGE
+    # PURGE =======================================================================================
     elif message.content.startswith("=purge"):
         perms = message.author.permissions_in(message.channel)
         if perms.manage_messages:
@@ -186,14 +241,16 @@ in the channel it was deleted from.\
         else:
             await message.channel.send("You need manage_messages to use this command.")
         return
-        
+    
+    # TIMER =======================================================================================
     elif message.content.startswith("=timer"):
         await message.channel.send(":hourglass_flowing_sand:")
         print("set timer")
         await asyncio.sleep(180)
         msg = await message.channel.send(message.author.mention)
         await msg.edit(content=":hourglass:")
-        
+    
+    # REPORT ======================================================================================
     elif message.content.startswith("=report"):
         await message.delete()
         if channel_modchat != None:
@@ -201,6 +258,8 @@ in the channel it was deleted from.\
             await channel_modchat.send(report_message)
         else:
             await message.channel.send("This server currently doesn't accept anonymous reports.")
+    
+    # RELOAD ======================================================================================
     elif message.content.startswith("=reload"):
         async with message.channel.typing():
             perms = message.author.permissions_in(message.channel)
@@ -212,7 +271,7 @@ in the channel it was deleted from.\
             else:
                 await message.channel.send("You don't have permission to do that!")
             
-    # quickdelete police
+    # quickdelete police ==========================================================================
     if not message.author.bot:
         quickdelete_list[message.id] = message
         await asyncio.sleep(random.randint(int(botConfig['BOT_SETTINGS']['MinDeleteTime']), int(botConfig['BOT_SETTINGS']['MaxDeleteTime'])))
@@ -222,27 +281,24 @@ in the channel it was deleted from.\
 async def on_message_delete(message):
     global quickdelete_list
     if message.id in quickdelete_list:
-        try:
-            deletedText = quickdelete_list[message.id]
-            descText = deletedText.clean_content
-            # add attachments to description
-            for attachment in deletedText.attachments:
-                descText = descText + "\n<" + attachment.filename + ">"
-            #create embed
-            deletionEmbed = discord.Embed(description=descText)                
-            deletionEmbed.set_author(name=message.author.name + " said...", icon_url=message.author.avatar_url) 
-            
-            global channel_modchat
-            if channel_quickdelete == None:
-                deletionEmbed.set_footer(text="This message was automatically re-sent because it was deleted too recently \
-                after it was sent. Please ask an administrator if you would like the post removed entirely.")
-                await message.channel.send(embed=deletionEmbed)
-            else:
-                #TODO: add reacts to auto post in original channel
-                deletionEmbed.set_footer(text="Quickdelete detected.")
-                await channel_modchat.send(embed=deletionEmbed)
-        except:
-            await message.channel.send("There was a fucky wucky, asshole.")
+        deletedText = quickdelete_list[message.id]
+        descText = deletedText.clean_content
+        # add attachments to description
+        for attachment in deletedText.attachments:
+            descText = descText + "\n<" + attachment.filename + ">"
+        #create embed
+        deletionEmbed = discord.Embed(description=descText)                
+        deletionEmbed.set_author(name=message.author.name + " said...", icon_url=message.author.avatar_url) 
+        
+        global channel_modchat
+        if channel_quickdelete == None:
+            deletionEmbed.set_footer(text="This message was automatically re-sent because it was deleted too recently \
+            after it was sent. Please ask an administrator if you would like the post removed entirely.")
+            await message.channel.send(embed=deletionEmbed)
+        else:
+            #TODO: add reacts to auto post in original channel
+            deletionEmbed.set_footer(text="Quickdelete detected.")
+            await channel_modchat.send(embed=deletionEmbed)
 
 #TODO: finish writing DB code
 #init
