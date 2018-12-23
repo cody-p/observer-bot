@@ -110,10 +110,8 @@ async def on_message(message):
 \n`=report` - Send an anonymous report to server staff. It will be deleted from the channel of sending immediately. \
 Currently does not support images.\
 \n\n__**Mod commands**__\
-\n`=toss` - Applies the `roleban` role to mentioned users. Planned to remove other roles in the future. \
-Can only be used by users with the manage_roles permission.\
-\n`=untoss` - Removes the `roleban` role from mentioned users (and will restore their roles when role \
-removal is implemented).\
+\n`=toss` - Rolebans a user. Can only be used by users with the manage_roles permission.\
+\n`=untoss` - Unrolebans a user and restores the roles they had. Role restoration currently does not persist across resets.\
 \n`=timer` - Creates a 3 minute timer, which pings the user when finished. Primarly meant for moderation purposes, \
 but can be used by normal users if they have a reason. \
 \n`=purge` - Attempts to delete all messages in the channel. Requires manage_messages permission.\
