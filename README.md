@@ -20,6 +20,4 @@ Use the =help command for more commands.
 * A say command
 * Configurable prefixes
 * Greet messages
-* Word blacklist (slurs, etc)
 * Message archiving
-* Sniping (revealing recent edits)
