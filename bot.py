@@ -295,8 +295,7 @@ async def on_message_delete(message):
 			await message.channel.send(embed=deletionEmbed)
 		else:
 			#TODO: add reacts to auto post in original channel
-			deletionEmbed.set_footer(text="Quickdelete detected.")
-			await channel_modchat.send(embed=deletionEmbed)
+			await channel_modchat.send("Quickdelete detected in " + message.channel.mention, embed=deletionEmbed)
 
 #TODO: finish writing DB code
 #init
