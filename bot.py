@@ -293,13 +293,13 @@ async def on_message_delete(message):
             
             deletionEmbed.set_footer(text=footerText)
 
-        global channel_modchat
+        global channel_quickdelete
         if channel_quickdelete == None:
             await message.channel.send("This message was automatically re-sent because it was deleted too recently \
 after it was sent. Please ask an administrator if you would like the post removed entirely.", embed=deletionEmbed)
         else:
             #TODO: add reacts to auto post in original channel
-            await channel_modchat.send("Quickdelete detected in " + message.channel.mention, embed=deletionEmbed)
+            await channel_quickdelete.send("Quickdelete detected in " + message.channel.mention, embed=deletionEmbed)
 
 #TODO: finish writing DB code
 #init
