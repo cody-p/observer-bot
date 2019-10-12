@@ -121,7 +121,7 @@ but can be used by normal users if they have a reason. \
 posted directly to the mod team. If there is no mod channel, the message will instead be reposted \
 in the channel it was deleted from.\
 \n\n__**Info**__\
-\nGithub: https://github.com/cody-p/observer-bot")
+\nGithub: https://github.com/kp-void/observer-bot")
                                    
     # TOSS ========================================================================================
     elif message.content.startswith('=toss'):
