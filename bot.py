@@ -271,16 +271,21 @@ rolebanned.\n**ID**: " + str(member.id) + "\n**Roles**: " + str(role_names))
                 await message.channel.send("You don't have permission to do that!")
     # ROLESTATS ======================================================================================
     elif message.content.startswith("=rolestats"):
-        for role in guild_home.roles:
-            if role.name != "@everyone":
-                rolecount = 0
-                for member in guild_home.members:
-                    for member_role in member.roles:
-                        if member_role == role:
-                            rolecount += 1
-                rolemsg += "\n**" + role.name + ":** " + str(rolecount)
-
-        await message.channel.send(rolemsg)
+        try:
+            rolemsg = "**__ROLES__**"
+            for role in guild_home.roles:
+                if role.name != "@everyone":
+                    rolecount = 0
+                    for member in guild_home.members:
+                        for member_role in member.roles:
+                            if member_role == role:
+                                rolecount += 1
+                    if rolecount > 0:
+                        rolemsg += "\n**" + role.name + ":** " + str(rolecount)
+            rolemsg += "\nRoles with zero members are not shown."
+            await message.channel.send(rolemsg)
+        except Exception as e:
+            await message.channel.send(str(e))
             
     # quickdelete police ==========================================================================
     if not message.author.bot:
