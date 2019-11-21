@@ -109,6 +109,7 @@ async def on_message(message):
 \n`=ping` - replies with 'pong!'\
 \n`=report` - Send an anonymous report to server staff. It will be deleted from the channel of sending immediately. \
 Currently does not support images.\
+\n`=rolestats` - Print a list of all roles on the server and how many members are in each role.\
 \n\n__**Mod commands**__\
 \n`=toss` - Rolebans a user. Can only be used by users with the manage_roles permission.\
 \n`=untoss` - Unrolebans a user and restores the roles they had. Role restoration currently does not persist across resets.\
@@ -268,6 +269,18 @@ rolebanned.\n**ID**: " + str(member.id) + "\n**Roles**: " + str(role_names))
                     await message.channel.send("There was an error loading the config.")
             else:
                 await message.channel.send("You don't have permission to do that!")
+    # ROLESTATS ======================================================================================
+    elif message.content.startswith("=rolestats"):
+        for role in guild_home.roles:
+            if role.name != "@everyone":
+                rolecount = 0
+                for member in guild_home.members:
+                    for member_role in member.roles:
+                        if member_role == role:
+                            rolecount += 1
+                rolemsg += "\n**" + role.name + ":** " + str(rolecount)
+
+        await message.channel.send(rolemsg)
             
     # quickdelete police ==========================================================================
     if not message.author.bot:
