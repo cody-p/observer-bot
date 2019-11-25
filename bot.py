@@ -289,7 +289,7 @@ rolebanned.\n**ID**: " + str(member.id) + "\n**Roles**: " + str(role_names))
             rolemsg = "**__ROLES__**"
             # iterate keys
             for key in role_list:
-                rolemsg += "\nRoles with " + str(key) + " members:\n"
+                rolemsg += "\n\nRoles with **" + str(key) + "** members:\n"
                 printed_first = False
                 #iterate each role with this count
                 for role in role_list[key]:
