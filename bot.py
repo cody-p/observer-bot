@@ -272,7 +272,8 @@ rolebanned.\n**ID**: " + str(member.id) + "\n**Roles**: " + str(role_names))
     # ROLESTATS ======================================================================================
     elif message.content.startswith("=rolestats"):
         try:
-            rolemsg = "**__ROLES__**"
+            role_list = {}
+            #iterate through all roles
             for role in guild_home.roles:
                 if role.name != "@everyone":
                     rolecount = 0
@@ -280,17 +281,34 @@ rolebanned.\n**ID**: " + str(member.id) + "\n**Roles**: " + str(role_names))
                         for member_role in member.roles:
                             if member_role == role:
                                 rolecount += 1
-                    if rolecount > 0:
-                        rolemsg += "\n**" + role.name + ":** " + str(rolecount)
-            rolemsg += "\nRoles with zero members are not shown."
+                    if not rolecount in role_list:
+                        role_list[rolecount] = []
+                    role_list[rolecount].append(role.name)
+
+            #after iterating, print roles
+            rolemsg = "**__ROLES__**"
+            # iterate keys
+            for key in role_list:
+                rolemsg += "\nRoles with " + str(key) + " members:\n"
+                printed_first = False
+                #iterate each role with this count
+                for role in role_list[key]:
+                #{
+                    if not printed_first:
+                        printed_first = True
+                    else:
+                        rolemsg += ", "
+                    rolemsg += '`' + role + '`'
+                #}
             await message.channel.send(rolemsg)
         except Exception as e:
+            e.print_exc()
             await message.channel.send(str(e))
             
     # quickdelete police ==========================================================================
     if not message.author.bot:
         quickdelete_list[message.id] = message
-        await asyncio.sleep(random.randint(int(botConfig['BOT_SETTINGS']['MinDeleteTime']), int(botConfig['BOT_SETTINGS']['MaxDeleteTime'])))
+        await asyncio.sleep(random.   randint(int(botConfig['BOT_SETTINGS']['MinDeleteTime']), int(botConfig['BOT_SETTINGS']['MaxDeleteTime'])))
         quickdelete_list.pop(message.id, None)
 
 @client.event

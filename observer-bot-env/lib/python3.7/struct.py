@@ -1,1 +1,1 @@
-/nix/store/7vksfpqznpszlskjizhli4i1gr0bgcz1-python3-3.7.4/lib/python3.7/struct.py
+/nix/store/4c3z5r6yxsf2cxwwyazhdn92xixn4j5b-python3-3.7.5/lib/python3.7/struct.py

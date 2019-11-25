@@ -1,2 +1,4 @@
-virtualenv my-new-python-venv
-source env/bin/activate
+#!/bin/sh
+
+nix-shell
+source observer-bot-env/bin/activate
